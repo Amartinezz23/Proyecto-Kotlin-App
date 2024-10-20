@@ -14,13 +14,16 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.sosphone.databinding.ActivityPpalBinding
 import android.Manifest
+import android.provider.Settings
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 
 class MainActivity : AppCompatActivity() {
     private lateinit var mainBinding : ActivityPpalBinding
     private  var phoneSOS : String? = null
+    //Acepta como lanzador un string que representa el permiso a solicitar.
     private lateinit var requestPermissionLauncher: ActivityResultLauncher<String>
+    private var permisionPhone = false
 
 
 
@@ -36,13 +39,31 @@ class MainActivity : AppCompatActivity() {
             insets
         }
         init()
-        initCall()
+        initEventCall()
+
+    }
+
+    /*
+    Cada vez que vuelve el Activity a la cabeza de la pila,
+    debemos de volver a seleccionar el phone pasado mediante el intent
+    desde el Activity 1.
+     */
+    override fun onResume() {
+        super.onResume()
+        permisionPhone = isPermissionCall()
+        val stringPhone  = getString(R.string.string_phone)
+        phoneSOS = intent.getStringExtra(stringPhone)
+        mainBinding.txtPhone.setText(phoneSOS)
+
+
     }
 
 
 
-
     private fun init(){
+        registerLauncher()
+        if (!isPermissionCall()) //verificamos permisos en de llamada.
+            requestPermissionLauncher.launch(Manifest.permission. CALL_PHONE)
 
         mainBinding.ivChangePhone.setOnClickListener {
             val nameSharedFich = getString(R.string.name_preferen_shared_fich)
@@ -51,20 +72,17 @@ class MainActivity : AppCompatActivity() {
             val edit = sharedFich.edit()
             edit.remove(nameSharedPhone)
             edit.apply()
-            startActivity(
-                Intent(this, ConfActivity::class.java )
-                .apply { addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
-                })
+            val intent = Intent(this, ConfActivity::class.java )
+                .apply {
+                    addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+                    putExtra("back", true)//volvemos desde El ACtivity2
+                }
+            startActivity(intent)
         }
 
-        val stringPhone  = getString(R.string.string_phone)
-        phoneSOS = intent.getStringExtra(stringPhone)
-        phoneSOS?.let {
-            initCall()
-        }?:run { Toast.makeText(this@MainActivity, "Error", Toast.LENGTH_LONG).show() }
+    }
 
-
-
+    private fun registerLauncher(){
         /*
         Para registrar una petición de permisos que aún no se ha lanzado....
 
@@ -79,65 +97,72 @@ class MainActivity : AppCompatActivity() {
             Se ejecuta esta lambda, cuando el usuario pulsa aceptar/denegar
              */
                 isGranted->
-                    if (isGranted) {
-                        call()
-                    }
-                    else {
-                        Toast.makeText( this, "Necesitas habilitar los permisos",
-                            Toast.LENGTH_LONG).show()
-                    }
+            if (isGranted) {
+                permisionPhone = true
+            }
+            else {
+                Toast.makeText( this, "Necesitas habilitar los permisos",
+                    Toast.LENGTH_LONG).show()
+                goToConfiguracionApp()  //abrimos la configuración de la aplicación.
+            }
         }
-
     }
-
 
 
     //inicia el proceso de llamada, junto con la petición de permisos.
-    private fun initCall() {
+    private fun initEventCall() {
         mainBinding.button.setOnClickListener {
-            verifyPermissionsCall()
+            permisionPhone=isPermissionCall()
+            if (permisionPhone)
+                call()
+            else
+                requestPermissionLauncher.launch(Manifest.permission. CALL_PHONE)
         }
     }
-
-    private fun verifyPermissionsCall() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            // Para Android 6.0 (API 23) y superior, se solicita el permiso en tiempo de ejecución
-            if (!permisionCall()) { //si no tiene los permisos, se solicitan
-                /*
-                llamada launch con el permiso de LLAMADA TELÉFONICA
-                - Iniciamos un diálogo con el permiso que queremos solicitar.
-                - El diálogo, ejecutará un método con el resultado de Aceptar/Denegar
-                mediante una llamada de orden superior, definida en lambda que hemos utilizado
-                en el registro de petición de permiso.
-                 */
-                requestPermissionLauncher.launch(Manifest.permission. CALL_PHONE)  //pedimos permisos en t. ejecución.
-            }else{
-                //ya se solicitaron los permisos en t. ejecución
-                call()
-            }
-        }else
-            call()  //No es necesario pedir en t. ejecución por ser < api 23
-
+    private fun isPermissionCall():Boolean{
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M)
+            return true  //no hace falta pedir permisos en t. real al usuario
+        else
+            return isPermissionToUser() //true es que los tiene. False es que no.
     }
 
-    /*
-    devuelve false, si no tiene los permisos.
-    PackageManager.PERMISSION_GRANTED es una cte que vale 0
-    Si el chequeo da un valor en el permiso igual a 0, es que tiene los permisos.
-     */
-    private fun permisionCall() = ContextCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_GRANTED
-
-
-    //método que pide los permisos en t. ejecución.
-
+    private fun isPermissionToUser() = ContextCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_GRANTED
 
     //realiza la llamada una vez solicitado los permisos.
     private fun call() {
-        val intent = Intent(Intent.ACTION_CALL).apply {
+        val intent = Intent(Intent.ACTION_CALL).apply {  //creamos la intención
+            //Indicamos la Uri que es la forma de indicarle a Android que es un teléfono.
             data = Uri.parse("tel:"+phoneSOS!!)
         }
         startActivity(intent)
     }
+
+
+    private fun goToConfiguracionApp(){
+        //Settings.ACTION_APPLICATION_DETAILS_SETTINGS  --> Intención de abrir la configuración de la App
+        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+            //La Uri, identifica un tipo de recurso (fichero, Url, aplicación, contenidos)
+            //con "package" --> queremos trabajar con un paquete, es decir una aplicación única.
+            //con "packageName" --> es el nombre de nuestro paquete com.example.sosphone
+            //con fragment = null.
+            data = Uri.fromParts("package", packageName, null)
+        }
+
+        startActivity(intent)
+    }
+
+    /*
+    De manera análoga en ConfActivity, es importantísimo actualizar el intent mandado
+    con el nuevo teléfono desde ConfActivity, porque por sí sólo, el intent no es actualizado
+    en la instancia MainActivity creado desde ConfActivity. Es importantísimo tener esto
+    en cuenta. Todo esto es porque hemos utilizado el flag de Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
+     */
+    //Main
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent) // Actualiza el Intent con los nuevos extras
+    }
+
 }
 
 /*

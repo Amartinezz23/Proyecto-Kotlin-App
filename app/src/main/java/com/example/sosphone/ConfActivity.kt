@@ -54,9 +54,12 @@ class ConfActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        confBinding.editPhone.setText("")
-        Toast.makeText(this, R.string.msg_new_phone, Toast.LENGTH_LONG).show()
-
+        val ret = intent.getBooleanExtra("back", false)
+        if (ret){
+            confBinding.editPhone.setText("")
+            Toast.makeText(this, R.string.msg_new_phone, Toast.LENGTH_LONG).show()
+            intent.removeExtra("back")  //por si se interrumpe.
+        }
     }
 
     private fun start(){
@@ -89,6 +92,7 @@ class ConfActivity : AppCompatActivity() {
         val intent = Intent(this@ConfActivity, MainActivity::class.java)
         intent.apply {
             putExtra(getString(R.string.string_phone), phone)
+            //ese Flag, no volverá a crear una instancia del intent. Será la misma.
             addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
         }
         startActivity(intent ) //lanzamos el Activity
@@ -113,4 +117,17 @@ class ConfActivity : AppCompatActivity() {
         }
     }
 
+ /*
+ Necesitamos sobreescribie este método, porque es el intent actualizado que utilizó
+ el activity MainActivity con el booleano ret a true. Esto es porque la instancia
+ creada en MainActivity, es el mismo y por sí sólo, cuando volvemos a modificar el intent
+ con nuevos datos, de manera implícita no lo actualiza el Activity ConfActivity, por ello
+ necesitamos sobreescribir este método, para que actualize el intent recibido con los
+ nuevos datos.
+  */
+    //Conf
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent) // Actualiza el Intent con los nuevos extras
+    }
 }
