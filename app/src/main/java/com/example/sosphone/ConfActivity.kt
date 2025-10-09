@@ -29,17 +29,18 @@ class ConfActivity : AppCompatActivity() {
         //activityMaiinBinding, ya es el objeto con las views infladas.
         //insertamos la IU del activity, a partir de la raiz del árbol generado de views,
         setContentView(confBinding.root)
+    //    confBinding.
 
         // Llamamos a la función que habilita el modo de borde a borde
-        enableEdgeToEdge()
+        //enableEdgeToEdge()
 
         //Ajustamos los margenes con binding.
-        ViewCompat.setOnApplyWindowInsetsListener(confBinding.main) { v, insets ->
+       /* ViewCompat.setOnApplyWindowInsetsListener(confBinding.main) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-
+*/
         initPreferentShared()
         start()
     }
@@ -92,8 +93,19 @@ class ConfActivity : AppCompatActivity() {
         val intent = Intent(this@ConfActivity, MainActivity::class.java)
         intent.apply {
             putExtra(getString(R.string.string_phone), phone)
-            //ese Flag, no volverá a crear una instancia del intent. Será la misma.
-            addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+            //ese Flag, no volverá a crear una instancia del intent. Será la misma
+            /*
+            1.- No crean una nueva instancia de Activity. Por defecto y sin flags, se crearán en la pila
+            tantas instancias como veces llames al Activity. Esto no es lo que queremos.
+            2.- El flag CLEAR_TOP, lo que hace es eliminar todas las instancias de activitys que hayan
+            por encima del que se quiere lanzar y por tanto, vuelve a la cabeza de la pila
+            3.- el flag single_top, significa que sólo se creará una instancia del activity aunque se haya
+            llamado 20 veces al mismo.
+            4.- Estos flags, provocan que se ejecute el método onNewIntent en el Activity que se quiere volver
+            a llamar. De esa forma, puede refrescar el intent con los nuevos datos.
+             */
+            //FLAG_ACTIVITY_REORDER_TO_FRONT
+            addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
         }
         startActivity(intent ) //lanzamos el Activity
     }
