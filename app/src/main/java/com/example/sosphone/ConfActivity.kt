@@ -6,10 +6,7 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import android.telephony.PhoneNumberUtils
 import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import com.example.sosphone.databinding.ActivityConfBinding
 import com.google.i18n.phonenumbers.NumberParseException
 import com.google.i18n.phonenumbers.PhoneNumberUtil
@@ -41,6 +38,7 @@ class ConfActivity : AppCompatActivity() {
             insets
         }
 */
+
         initPreferentShared()
         start()
     }
@@ -63,34 +61,36 @@ class ConfActivity : AppCompatActivity() {
         }
     }
 
-    private fun start(){
-        //buscamos la preferencia del phone guardada. En caso de que no esté, será null
-        val sharedPhone : String?  = sharedFich.getString(nameSharedPhone, null)
+    private fun start() {
+        val fromSettings = intent.getBooleanExtra("from_settings_icon", false)
+        val sharedPhone: String? = sharedFich.getString(nameSharedPhone, null)
 
-        sharedPhone?.let {
-            startMainActivity(it)
+        // Solo saltar a TlfnActivity si NO venimos del icono de ajustes
+        if (!fromSettings) {
+            sharedPhone?.let {
+                startMainActivity(it)
+            }
         }
 
         confBinding.btnConf.setOnClickListener {
             val numberPhone = confBinding.editPhone.text.toString()
             if (numberPhone.isEmpty())
                 Toast.makeText(this, R.string.msg_empty_phone, Toast.LENGTH_LONG).show()
-            else
-                if (!isValidPhoneNumber2(numberPhone, "ES"))
-                    Toast.makeText(this, R.string.msg_not_valid_phone, Toast.LENGTH_LONG).show()
-                else{
-                    //registramos el teléfono, ya que es válido.
-                    val edit = sharedFich.edit()
-                    edit.putString(nameSharedPhone, numberPhone)
-                    edit.apply()
-                    startMainActivity(numberPhone)
-                }
+            else if (!isValidPhoneNumber2(numberPhone, "ES"))
+                Toast.makeText(this, R.string.msg_not_valid_phone, Toast.LENGTH_LONG).show()
+            else {
+                val edit = sharedFich.edit()
+                edit.putString(nameSharedPhone, numberPhone)
+                edit.apply()
+                startMainActivity(numberPhone)
+            }
         }
     }
 
 
+
     private fun startMainActivity(phone: String) {
-        val intent = Intent(this@ConfActivity, MainActivity::class.java)
+        val intent = Intent(this@ConfActivity, TlfnActivity::class.java)
         intent.apply {
             putExtra(getString(R.string.string_phone), phone)
             //ese Flag, no volverá a crear una instancia del intent. Será la misma
@@ -129,7 +129,37 @@ class ConfActivity : AppCompatActivity() {
         }
     }
 
- /*
+    fun volverAMainActivity(View: android.view.View){
+        val intent = Intent(this, MainActivity::class.java)
+        startActivity(intent)
+    }
+
+    fun guardarUrl(view: android.view.View) {
+        // 1️⃣ Obtener el texto del EditText
+        val url = confBinding.editUrl.text.toString().trim()
+
+        // 2️⃣ Validar que no esté vacío
+        if (url.isEmpty()) {
+            Toast.makeText(this, "Introduce una URL", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        // 3️⃣ Guardar en SharedPreferences
+        val prefs = getSharedPreferences("configApp", MODE_PRIVATE)
+        prefs.edit().putString("url_guardada", url).apply()
+
+        // 4️⃣ Confirmar guardado
+        Toast.makeText(this, "URL guardada correctamente", Toast.LENGTH_SHORT).show()
+
+        //Volver al MainActivity directamente
+        val intent = Intent(this, MainActivity::class.java)
+        startActivity(intent)
+        finish()
+    }
+
+
+
+    /*
  Necesitamos sobreescribie este método, porque es el intent actualizado que utilizó
  el activity MainActivity con el booleano ret a true. Esto es porque la instancia
  creada en MainActivity, es el mismo y por sí sólo, cuando volvemos a modificar el intent
