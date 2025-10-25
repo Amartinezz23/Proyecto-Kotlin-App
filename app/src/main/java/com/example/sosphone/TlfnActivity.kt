@@ -66,16 +66,10 @@ class TlfnActivity : AppCompatActivity() {
             requestPermissionLauncher.launch(Manifest.permission. CALL_PHONE)
 
         mainBinding.ivChangePhone.setOnClickListener {
-            val nameSharedFich = getString(R.string.name_preferen_shared_fich)
-            val nameSharedPhone = getString(R.string.name_shared_phone)
-            val sharedFich = getSharedPreferences(nameSharedFich, Context.MODE_PRIVATE)
-            val edit = sharedFich.edit()
-            edit.remove(nameSharedPhone)
-            edit.apply()
-            val intent = Intent(this, ConfActivity::class.java )
+            val intent = Intent(this, ConfActivity::class.java)
                 .apply {
                     addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
-                    putExtra("back", true)//volvemos desde El ACtivity2
+                    putExtra("back", true)
                 }
             startActivity(intent)
         }

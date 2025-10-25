@@ -1,10 +1,14 @@
 package com.example.sosphone
 
+import android.annotation.SuppressLint
+import android.app.AlarmManager
+import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.telephony.PhoneNumberUtils
+import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.sosphone.databinding.ActivityConfBinding
@@ -56,21 +60,15 @@ class ConfActivity : AppCompatActivity() {
         val ret = intent.getBooleanExtra("back", false)
         if (ret){
             confBinding.editPhone.setText("")
-            Toast.makeText(this, R.string.msg_new_phone, Toast.LENGTH_LONG).show()
+            //Toast.makeText(this, R.string.msg_new_phone, Toast.LENGTH_LONG).show()
             intent.removeExtra("back")  //por si se interrumpe.
         }
     }
 
     private fun start() {
-        val fromSettings = intent.getBooleanExtra("from_settings_icon", false)
-        val sharedPhone: String? = sharedFich.getString(nameSharedPhone, null)
+        // Aquí solo inicializas o actualizas la UI, pero sin lanzar nada.
+        // Si quieres, puedes mostrar el número guardado en el EditText.
 
-        // Solo saltar a TlfnActivity si NO venimos del icono de ajustes
-        if (!fromSettings) {
-            sharedPhone?.let {
-                startMainActivity(it)
-            }
-        }
 
         confBinding.btnConf.setOnClickListener {
             val numberPhone = confBinding.editPhone.text.toString()
@@ -82,10 +80,11 @@ class ConfActivity : AppCompatActivity() {
                 val edit = sharedFich.edit()
                 edit.putString(nameSharedPhone, numberPhone)
                 edit.apply()
-                startMainActivity(numberPhone)
+                Toast.makeText(this,"Telefono guardado correctamente", Toast.LENGTH_SHORT).show()
             }
         }
     }
+
 
 
 
@@ -135,26 +134,49 @@ class ConfActivity : AppCompatActivity() {
     }
 
     fun guardarUrl(view: android.view.View) {
-        // 1️⃣ Obtener el texto del EditText
+
         val url = confBinding.editUrl.text.toString().trim()
 
-        // 2️⃣ Validar que no esté vacío
+
         if (url.isEmpty()) {
-            Toast.makeText(this, "Introduce una URL", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Introduce una URL, no puede ser vacia", Toast.LENGTH_SHORT).show()
             return
         }
 
-        // 3️⃣ Guardar en SharedPreferences
+        //Guardamos en SharedPreferences el enlace, IMPORTANTE: Tener el mismo nombre en las dos clases, si no no funciona
         val prefs = getSharedPreferences("configApp", MODE_PRIVATE)
         prefs.edit().putString("url_guardada", url).apply()
 
-        // 4️⃣ Confirmar guardado
+        //Confirmar guardado
         Toast.makeText(this, "URL guardada correctamente", Toast.LENGTH_SHORT).show()
 
-        //Volver al MainActivity directamente
+
+
+    }
+
+    fun guardarAlarma(view: View) {
+        val minutosTexto = confBinding.editAlarma.text.toString().trim()
+
+        if (minutosTexto.isEmpty()) {
+            Toast.makeText(this, "Introduce los minutos para la alarma", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val minutos = minutosTexto.toIntOrNull()
+        if (minutos == null || minutos <= 0) {
+            Toast.makeText(this, "Introduce un número válido de minutos", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        // Guardamos los minutos en las preferencias
+        val prefs = getSharedPreferences("configApp", MODE_PRIVATE)
+        prefs.edit().putInt("minutos_alarma", minutos).apply()
+
+        // Volvemos al MainActivity
         val intent = Intent(this, MainActivity::class.java)
         startActivity(intent)
-        finish()
+
+        Toast.makeText(this, "Alarma configurada para sonar en $minutos minutos", Toast.LENGTH_SHORT).show()
     }
 
 
