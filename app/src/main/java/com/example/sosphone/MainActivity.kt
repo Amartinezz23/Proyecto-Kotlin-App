@@ -1,21 +1,18 @@
 package com.example.sosphone
 
-import android.app.AlarmManager
-import android.app.PendingIntent
-import android.content.Context
 import android.content.Intent
 import android.icu.util.Calendar
 import android.net.Uri
 import android.os.Bundle
-import android.os.SystemClock
 import android.provider.AlarmClock
+import android.view.View
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.example.sosphone.R
-
+import android.media.MediaPlayer
+private lateinit var mediaPlayer: MediaPlayer
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,6 +23,8 @@ class MainActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+
+        mediaPlayer = MediaPlayer.create(this, R.raw.audio)
 
 
 
@@ -46,9 +45,9 @@ class MainActivity : AppCompatActivity() {
 
     // Abrir URL
     fun abrirUrl(view: android.view.View) {
-        val prefs = getSharedPreferences("configApp", MODE_PRIVATE)
+        val preferences = getSharedPreferences("configApp", MODE_PRIVATE)
         //Si no hay nada ponemos que abra google
-        val url = prefs.getString("url_guardada", "https://www.google.com")
+        val url = preferences.getString("url_guardada", "https://www.google.com")
 
         Toast.makeText(this, "Abriendo: $url", Toast.LENGTH_SHORT).show()
 
@@ -61,12 +60,12 @@ class MainActivity : AppCompatActivity() {
     // Llamar a un número de teléfono
     fun abrirTelefono(view: android.view.View) {
         // Abrimos las SharedPreferences donde se guardó el número
-        val nameSharedFich = getString(R.string.name_preferen_shared_fich)
+        val nameSharedFichero = getString(R.string.name_preferen_shared_fich)
         val nameSharedPhone = getString(R.string.name_shared_phone)
-        val prefs = getSharedPreferences(nameSharedFich, MODE_PRIVATE)
+        val preferences = getSharedPreferences(nameSharedFichero, MODE_PRIVATE)
 
         // Obtenemos el número guardado
-        val phone = prefs.getString(nameSharedPhone, null)
+        val phone = preferences.getString(nameSharedPhone, null)
 
         if (phone.isNullOrEmpty()) {
             // Si no hay número guardado, mandamos al usuario a la configuración
@@ -89,26 +88,38 @@ class MainActivity : AppCompatActivity() {
         val prefs = getSharedPreferences("configApp", MODE_PRIVATE)
         val minutos = prefs.getInt("minutos_alarma", 1) // Valor por defecto 1 minuto
 
-        val calendar = Calendar.getInstance()
-        var hour = calendar.get(Calendar.HOUR_OF_DAY)
-        var minute = calendar.get(Calendar.MINUTE)
+        val calendario = Calendar.getInstance()
+        var hora = calendario.get(Calendar.HOUR_OF_DAY)
+        var minuto = calendario.get(Calendar.MINUTE)
 
         // Sumar los minutos configurados
-        minute += minutos
-        while (minute >= 60) {
-            minute -= 60
-            hour = (hour + 1) % 24
+        minuto += minutos
+        while (minuto >= 60) {
+            minuto -= 60
+            hora = (hora + 1) % 24
         }
 
         val intent_alarm = Intent(AlarmClock.ACTION_SET_ALARM).apply {
             putExtra(AlarmClock.EXTRA_MESSAGE, "Alarma en $minutos minutos")
-            putExtra(AlarmClock.EXTRA_HOUR, hour)
-            putExtra(AlarmClock.EXTRA_MINUTES, minute)
+            putExtra(AlarmClock.EXTRA_HOUR, hora)
+            putExtra(AlarmClock.EXTRA_MINUTES, minuto)
             putExtra(AlarmClock.EXTRA_SKIP_UI, true) // para no abrir la app del reloj (opcional)
         }
 
         startActivity(intent_alarm)
 
         Toast.makeText(this, "Alarma programada en $minutos minutos", Toast.LENGTH_SHORT).show()
+    }
+
+    fun abrirAjustes(view : android.view.View){
+         val intent = Intent(this, ConfActivity::class.java)
+        startActivity(intent)
+    }
+
+    fun abrirACDC(view : android.view.View){
+        if (mediaPlayer.isPlaying) {
+            mediaPlayer.seekTo(0)
+        }
+        mediaPlayer.start()
     }
 }
