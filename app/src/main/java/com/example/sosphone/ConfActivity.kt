@@ -154,30 +154,7 @@ class ConfActivity : AppCompatActivity() {
 
     }
 
-    fun guardarAlarma(view: View) {
-        val minutosTexto = confBinding.editAlarma.text.toString().trim()
 
-        if (minutosTexto.isEmpty()) {
-            Toast.makeText(this, "Introduce los minutos para la alarma", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        val minutos = minutosTexto.toIntOrNull()
-        if (minutos == null || minutos <= 0) {
-            Toast.makeText(this, "Introduce un número válido de minutos", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        // Guardamos los minutos en las preferencias
-        val prefs = getSharedPreferences("configApp", MODE_PRIVATE)
-        prefs.edit().putInt("minutos_alarma", minutos).apply()
-
-        // Volvemos al MainActivity
-        val intent = Intent(this, MainActivity::class.java)
-        startActivity(intent)
-
-        Toast.makeText(this, "Alarma configurada para sonar en $minutos minutos", Toast.LENGTH_SHORT).show()
-    }
 
 
 

@@ -82,26 +82,38 @@
             android:scaleType="centerInside"
             android:contentDescription="Abrir Alarma"
             android:onClick="PonerAlarma" />
+
+        <!-- Ajustes -->
+        <ImageButton
+            android:id="@+id/btnSettings"
+            android:layout_width="130dp"
+            android:layout_height="120dp"
+            android:layout_gravity="center_horizontal|bottom"
+            android:background="@android:color/transparent"
+            android:contentDescription="Ajustes"
+            android:onClick="abrirAjustes"
+            android:padding="16dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ajustes" />
+        <ImageButton
+            android:id="@+id/btnCamara"
+            android:layout_width="130dp"
+            android:layout_height="120dp"
+            android:layout_gravity="center_horizontal|bottom"
+            android:background="@android:color/transparent"
+            android:contentDescription="Ajustes"
+            android:onClick="abrirCamara"
+            android:padding="16dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/camara" />
     </GridLayout>
 
-    <!-- Ajustes -->
-    <ImageButton
-        android:id="@+id/btnSettings"
-        android:layout_width="120dp"
-        android:layout_height="120dp"
-        android:layout_gravity="center_horizontal|bottom"
-        android:layout_marginBottom="32dp"
-        android:background="@android:color/transparent"
-        android:contentDescription="Ajustes"
-        android:onClick="abrirAjustes"
-        android:padding="16dp"
-        android:scaleType="fitCenter"
-        android:src="@drawable/ajustes" />
+
     <!-- ACDC -->
     <ImageButton
         android:id="@+id/btnACDC"
-        android:layout_width="120dp"
-        android:layout_height="120dp"
+        android:layout_width="300dp"
+        android:layout_height="150dp"
         android:layout_gravity="center_horizontal|bottom"
         android:layout_marginBottom="10dp"
         android:background="@android:color/transparent"

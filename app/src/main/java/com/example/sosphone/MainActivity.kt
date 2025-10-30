@@ -12,6 +12,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import android.media.MediaPlayer
+import android.provider.MediaStore
+
 private lateinit var mediaPlayer: MediaPlayer
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -85,9 +87,8 @@ class MainActivity : AppCompatActivity() {
 
 
     fun PonerAlarma(view: android.view.View) {
-        val prefs = getSharedPreferences("configApp", MODE_PRIVATE)
-        val minutos = prefs.getInt("minutos_alarma", 1) // Valor por defecto 1 minuto
-
+        //Ponemos que la alarma sea de por ejemplo 1 mintu
+        val minutos = 2;
         val calendario = Calendar.getInstance()
         var hora = calendario.get(Calendar.HOUR_OF_DAY)
         var minuto = calendario.get(Calendar.MINUTE)
@@ -121,5 +122,10 @@ class MainActivity : AppCompatActivity() {
             mediaPlayer.seekTo(0)
         }
         mediaPlayer.start()
+    }
+
+    fun abrirCamara(view: View){
+        val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+        startActivity(intent)
     }
 }
