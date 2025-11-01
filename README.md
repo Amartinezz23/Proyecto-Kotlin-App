@@ -81,6 +81,6 @@ Intent intent = new Intent(MainActivity.this, SecondActivity.class);
 intent.putExtra("nombreUsuario", "Juan");
 startActivity(intent);
 
-
+````
 ## 📲 **Clonar el repo**
 git clone https://github.com/Amartinezz23/Proyecto-Kotlin-App.git
