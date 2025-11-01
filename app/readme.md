@@ -3,7 +3,7 @@
 
 ---
 
-## 🚀 **Descripción general**
+## **Descripción general**
 **Proyecto-Kotlin-App** es una aplicación educativa desarrollada en **Kotlin** para Android.  
 Su objetivo es demostrar el uso de **Intents implícitos**, **layouts dinámicos**, manejo de **botones interactivos** y recursos dentro de un proyecto Android.
 
@@ -19,7 +19,7 @@ Está pensada como un proyecto de aprendizaje para **estudiantes de Android**, m
 
 ---
 
-## 🧩 **Características principales**
+## **Características principales**
 - **Interfaz amigable y moderna** con diseño limpio
 - **GridLayout** para organizar botones de forma clara
 - **ImageButtons** con iconos personalizados (`drawable`)
@@ -30,7 +30,7 @@ Está pensada como un proyecto de aprendizaje para **estudiantes de Android**, m
 
 ---
 
-## 🎨 **Diseño y Layout**
+## **Diseño y Layout**
 La app utiliza un diseño **verticalº con LinearLayout** principal, incluyendo:
 - **TextView** para título principal
 - **GridLayout** con 6 botones principales
@@ -40,7 +40,7 @@ La app utiliza un diseño **verticalº con LinearLayout** principal, incluyendo:
 
 ---
 
-## 📂 **Estructura del proyecto**
+##**Estructura del proyecto**
 ```app/
 ├─ src/
 │ ├─ main/
@@ -58,7 +58,7 @@ La app utiliza un diseño **verticalº con LinearLayout** principal, incluyendo:
 ├─ settings.gradle
 ```
 
-## 🔧 **Requisitos**
+## **Requisitos**
 - **Android Studio** (recomendado: versión 2022 o superior)
 - **Kotlin 1.8+**
 - **SDK Android** compatible con la versión mínima configurada (`minSdkVersion`)
@@ -66,5 +66,21 @@ La app utiliza un diseño **verticalº con LinearLayout** principal, incluyendo:
 
 ---
 
+# Comunicación entre Activities en Android
+
+En este proyecto he implementado la comunicación entre diferentes **Activities** utilizando dos métodos principales: **`putExtra`** y **`SharedPreferences`**.
+
+## Uso de `putExtra`
+
+Para enviar información de una **Activity** a otra, utilicé el método **`putExtra`** dentro de los **intents**.  
+Este método me permitió transferir datos temporales como textos, números o estados de manera sencilla y rápida mientras la aplicación cambiaba de pantalla.
+
+**Ejemplo:**
+```java
+Intent intent = new Intent(MainActivity.this, SecondActivity.class);
+intent.putExtra("nombreUsuario", "Juan");
+startActivity(intent);
+
+````
 ## 📲 **Clonar el repo**
 git clone https://github.com/Amartinezz23/Proyecto-Kotlin-App.git
